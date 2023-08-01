@@ -4,47 +4,32 @@ import petRouter from "./routers/pet.routes";
 import { Code } from "./enum/code.enum";
 import { HttpResponse } from "./domain/response";
 import { Status } from "./enum/status.enum";
-import { DataSource } from "typeorm";
+import { TypeOrmService } from "./_helpers/typeorm.service";
 import dotenv from 'dotenv';
+import { DataSource } from "typeorm";
 dotenv.config();
 
 export class App {
     private readonly app: Application;
     private readonly APPLICATION_RUNNING = 'Application is running on port';
     private readonly ROUTE_NOT_FOUND = 'Route does not exist on the server.';
-    private dataSource!: DataSource;
+    typeOrmService: TypeOrmService;
 
     constructor(private readonly port: (string | number) = process.env.PORT || 3000) {
         this.app = express();
         this.middleWare();
         this.routes();
-        this.connect();
+        this.typeOrmService = new TypeOrmService;
+        this.typeOrmService.init();
+    }
+
+    getDataSource(): DataSource {
+        return this.typeOrmService.dataSource;
     }
 
     listen(): void {
         this.app.listen(this.port);
         console.info(`${this.APPLICATION_RUNNING} ${this.port}`);
-    }
-
-    connect(): void {
-        this.dataSource = new DataSource({
-            type: "mysql",
-            host: "localhost",
-            port: 3306,
-            username: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            entities: ["src/entity/*.ts"],
-            logging: true,
-            synchronize: true,
-        });
-        this.dataSource.initialize()
-            .then(() => {
-                console.log("Data Source has been initialized!")
-            })
-            .catch((err) => {
-                console.error("Error during Data Source initialization", err)
-            });
     }
 
     private middleWare(): void {
