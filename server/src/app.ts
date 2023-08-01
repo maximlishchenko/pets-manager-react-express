@@ -4,28 +4,28 @@ import petRouter from "./routers/pet.routes";
 import { Code } from "./enum/code.enum";
 import { HttpResponse } from "./domain/response";
 import { Status } from "./enum/status.enum";
-import { TypeOrmService } from "./_helpers/typeorm.service";
+import { DbConnection } from "./db/typeorm.connection";
 import dotenv from 'dotenv';
-import { DataSource } from "typeorm";
 dotenv.config();
 
 export class App {
     private readonly app: Application;
     private readonly APPLICATION_RUNNING = 'Application is running on port';
     private readonly ROUTE_NOT_FOUND = 'Route does not exist on the server.';
-    typeOrmService: TypeOrmService;
+    private dbConnection: DbConnection;
 
     constructor(private readonly port: (string | number) = process.env.PORT || 3000) {
         this.app = express();
         this.middleWare();
         this.routes();
-        this.typeOrmService = new TypeOrmService;
-        this.typeOrmService.init();
+        
+        this.dbConnection = DbConnection.getInstance();
+        this.dbConnection.init();
     }
 
-    getDataSource(): DataSource {
-        return this.typeOrmService.dataSource;
-    }
+    // getDataSource(): DataSource {
+    //     // return this.typeOrmService.dataSource;
+    // }
 
     listen(): void {
         this.app.listen(this.port);
