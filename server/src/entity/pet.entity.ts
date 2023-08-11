@@ -9,17 +9,17 @@ export class Pet {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @OneToOne(() => PetType)
+    @OneToOne(() => PetType, { cascade: true, eager: true })
     @JoinColumn({ name: "pet_type_id" })
-    petTypeId!: PetType
+    petType!: PetType
 
-    @OneToOne(() => FurColor)
+    @OneToOne(() => FurColor, { cascade: true, eager: true })
     @JoinColumn({ name: "fur_color_id" })
-    furColorId!: FurColor
+    furColor!: FurColor
 
-    @OneToOne(() => PetCountry)
+    @OneToOne(() => PetCountry, { cascade: true, eager: true })
     @JoinColumn({ name: "country_id" })
-    countryId!: PetCountry
+    country!: PetCountry
 
     @ManyToOne(() => User, (user) => user.pets)
     @JoinColumn({ name: "user_id" })
