@@ -71,7 +71,6 @@ class PetController {
 
     async addPet(req: Request, res: Response) {
         try {
-            // const { petType, furColor, country, idCode, name } = req.body;
             const typeFromDb: PetType | null = await dataSource.getRepository(PetType).findOne({
                 where: {
                     type: req.body.petType
@@ -95,22 +94,23 @@ class PetController {
                 idCode: req.body.idCode,
                 petType: {id: typeFromDb.id},
                 furColor: {id: colorFromDb.id},
-                country: {id: countryFromDb.id}});
-            // const petToSave: Pet = new Pet();
-            // petToSave.petType.id = typeFromDb.id;
-            // petToSave.furColor.id = colorFromDb.id;
-            // petToSave.country.id = countryFromDb.id;
-            // petToSave.idCode = req.body.idCode;
-            // petToSave.name = req.body.name;
+                country: {id: countryFromDb.id}
+            });
             const savedPet = await dataSource.getRepository(Pet).save(petToSave);
-            const result = dataSource.getRepository(Pet).findOne({
+            const savedPetFromDb = await dataSource.getRepository(Pet).findOne({
                 where: {
                     id: savedPet.id
                 }
             });
-            console.log(result);
+            const resultPetDto = new PetDto(savedPetFromDb!.petType.type,
+                savedPetFromDb!.furColor.color,
+                savedPetFromDb!.country.country,
+                savedPetFromDb!.idCode,
+                savedPetFromDb!.name,
+                savedPetFromDb!.id
+            );
             return res.status(Code.OK)
-                .send(new HttpResponse(Code.OK, Status.OK, `Successfully added pet`, result));
+                .send(new HttpResponse(Code.OK, Status.OK, `Successfully added pet`, resultPetDto));
         } catch (e) {
             console.log(e);
         }
@@ -130,8 +130,15 @@ class PetController {
             }
             dataSource.getRepository(Pet).merge(petFromDb!, req.body);
             const results = await dataSource.getRepository(Pet).save(petFromDb!);
+            const resultPetDto = new PetDto(results!.petType.type,
+                results!.furColor.color,
+                results!.country.country,
+                results!.idCode,
+                results!.name,
+                results!.id
+            );
             return res.status(Code.OK)
-                .send(new HttpResponse(Code.OK, Status.OK, `Successfully edited pet with id = ${id}`, results));
+                .send(new HttpResponse(Code.OK, Status.OK, `Successfully edited pet with id = ${id}`, resultPetDto));
         } catch (e) {
             console.log(e);
         }
