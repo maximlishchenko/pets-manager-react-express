@@ -25,7 +25,7 @@ export class Pet {
     @JoinColumn({ name: "user_id", referencedColumnName: "id"  })
     userId!: User
 
-    @Column({ name: "id_code" })
+    @Column({ name: "id_code", unique: true })
     idCode!: string
 
     @Column()
